@@ -9,7 +9,13 @@ from django.contrib import admin
 urlpatterns = [
     url(r"^$", TemplateView.as_view(template_name="homepage.html"), name="home"),
     url(r"^admin/", include(admin.site.urls)),
+    url(r"^vinculums/", include("vinculum.urls")),
+    url(r"^dashboard/", include("dashboard.urls")),
     url(r"^account/", include("account.urls")),
+    
+    url(r'^api-auth/', include('rest_framework.urls',
+                               namespace='rest_framework')),
 ]
+
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

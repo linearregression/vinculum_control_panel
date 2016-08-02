@@ -133,9 +133,13 @@ INSTALLED_APPS = [
     "account",
     "pinax.eventlog",
     "pinax.webanalytics",
+    "rest_framework",
+
 
     # project
     "control_panel",
+    "dashboard",
+    "vinculum",
 ]
 
 # A sample logging configuration. The only tangible logging
