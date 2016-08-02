@@ -10,20 +10,24 @@ from vinculum.serializers import VinculumSerializer
 
 
 class VinculumList(generics.ListCreateAPIView):
-    queryset = Vinculum.objects.all()
+    # queryset = Vinculum.objects.all()
     serializer_class = VinculumSerializer
     # handles get, post
+
+    def get_queryset(self):
+            return Vinculum.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-    # permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
     #
+
 
 class VinculumDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Vinculum.objects.all()
     serializer_class = VinculumSerializer
 
-    # permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
-    #handles get, put, delete
+    # handles get, put, delete
