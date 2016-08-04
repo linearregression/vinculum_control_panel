@@ -25,7 +25,7 @@ class Vinculum(models.Model):
 
 class RemoteResources(models.Model):
     vinculum = models.ForeignKey(Vinculum, on_delete=models.CASCADE, related_name="remote_resources")
-    # make sure to set related_name to this so it maches what is in the VinculumSerializer
+    # make sure to set related_name to this so it maches what is in the VinculumSerializer's Meta 'fields' member
 
     authentication_behavior = models.CharField(max_length=100, blank=True, default='')
     # how do we authenticate against this remote resource?
@@ -33,15 +33,14 @@ class RemoteResources(models.Model):
     remote_resource_path = models.TextField(blank=False)
     # where do we find this remote resource? Expect something like an API
 
-    output_path = models.TextField()
-    # each Vinculum has 1 local output API
-
     def __unicode__(self):
         return '%s : %s' % (self.remote_resource_path, self.output_path)
 
-# class InputPath(models.Model):
-#     remote_resource = models.ForeignKey("remoteresources", on_delete=models.CASCADE)
-#     input_path = models.TextField()
-#
-#     def __unicode__(self):
-#         return '%s' % (self.input_path)
+
+class InputOutputPath(models.Model):
+    remote_resource = models.ForeignKey(RemoteResources, on_delete=models.CASCADE, related_name="io_paths")
+    input_path = models.TextField()
+    output_path = models.TextField()
+
+    def __unicode__(self):
+        return '%s : %s' % (self.input_path, self.output_path)

@@ -1,12 +1,28 @@
 from rest_framework import serializers
 
-from vinculum.models import Vinculum, RemoteResources
+from vinculum.models import Vinculum, RemoteResources, InputOutputPath
+
+
+class InputOutputPathSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = InputOutputPath
+        fields = ("input_path", "output_path")
 
 
 class RemoteResourceSerializer(serializers.ModelSerializer):
+    io_paths = InputOutputPathSerializer(many=True)
+
     class Meta:
         model = RemoteResources
-        fields = ('id', 'authentication_behavior', 'remote_resource_path', 'output_path')
+        fields = ('id', 'authentication_behavior', 'remote_resource_path', 'io_paths')
+
+    # def create(self, validated_data):
+    #     input_paths = validated_data.pop('input_paths')
+    #     remote_resource = RemoteResources.objects.create(**validated_data)
+    #     for input_path in input_paths:
+    #         InputPath.objects.create(remote_resource=remote_resource, **input_path)
+    #     return remote_resource
 
 
 class VinculumSerializer(serializers.ModelSerializer):
@@ -22,6 +38,9 @@ class VinculumSerializer(serializers.ModelSerializer):
         remoteresources = validated_data.pop('remote_resources')
         vinculum = Vinculum.objects.create(**validated_data)
         for remoteresource in remoteresources:
-            RemoteResources.objects.create(vinculum=vinculum, **remoteresource)
+            io_paths = remoteresource.pop('io_paths')
+            r = RemoteResources.objects.create(vinculum=vinculum, **remoteresource)
+            for io_path in io_paths:
+                InputOutputPath.objects.create(remote_resource=r, **io_path)
         return vinculum
 
