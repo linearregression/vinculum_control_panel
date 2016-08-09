@@ -7,10 +7,16 @@ BASE_DIR = PACKAGE_ROOT
 
 DEBUG = True
 
+DB_PASSWORD = os.environ['DB_PASSWORD']
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "dev.db",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'vinculum',
+        'USER': 'vinculum_user',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
@@ -188,3 +194,8 @@ ACCOUNT_USE_AUTH_AUTHENTICATE = True
 AUTHENTICATION_BACKENDS = [
     "account.auth_backends.UsernameAuthenticationBackend",
 ]
+
+VINCULUM_RUNNER_IP = "http://localhost:8001/"
+VINCULUM_RUNNER_ROOT = "vinculum_runner/"
+
+VINCULUM_RUNNER = VINCULUM_RUNNER_IP + VINCULUM_RUNNER_ROOT
