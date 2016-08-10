@@ -32,7 +32,7 @@ class VinculumSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vinculum
-        fields = ( 'title', 'owner', "root_path", "remote_resources")
+        fields = ('id', 'title', 'owner', "root_path", "remote_resources")
 
     def create(self, validated_data):
         # manually buildup the entire vinculum here. Newer versions of DRF don't

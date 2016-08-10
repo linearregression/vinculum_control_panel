@@ -192,10 +192,11 @@ ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 2
 ACCOUNT_USE_AUTH_AUTHENTICATE = True
 
 AUTHENTICATION_BACKENDS = [
+    "rest_framework.authentication.BasicAuthentication",
     "account.auth_backends.UsernameAuthenticationBackend",
 ]
 
-VINCULUM_RUNNER_IP = "http://localhost:8001/"
+VINCULUM_RUNNER_IP = os.environ.get("VINCULUM_RUNNER_IP", None)
 VINCULUM_RUNNER_ROOT = "vinculum_runner/"
 
 VINCULUM_RUNNER = VINCULUM_RUNNER_IP + VINCULUM_RUNNER_ROOT
