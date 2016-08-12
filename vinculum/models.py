@@ -11,7 +11,7 @@ class Vinculum(models.Model):
     title = models.CharField(max_length=100, blank=True, default='')
     owner = models.ForeignKey(User, related_name='vinculum')
     root_path = models.CharField(max_length=1024, blank=True)
-    task_id = models.UUIDField(blank=True, default="123e4567-e89b-12d3-a456-426655440000")
+    task_id = models.PositiveIntegerField(blank=True, default=0)
 
     class Meta:
         ordering = ('created',)

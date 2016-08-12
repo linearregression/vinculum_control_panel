@@ -25,11 +25,10 @@ class VinculumList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         instance = serializer.save(owner=self.request.user)
 
-        vinculum_serialized_data = JSONRenderer().render(serializer.data)
-        json_vinc = json.loads(vinculum_serialized_data)
+        vinculum_serialized_data = JSONRenderer().render(serializer.validated_data)
         data = {
             'remote_id':instance.id,
-            'jobs_json': json_vinc
+            'jobs_json': vinculum_serialized_data
             }
         r = requests.post(VINCULUM_RUNNER, json=data)
 
@@ -41,6 +40,6 @@ class VinculumDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Vinculum.objects.all()
     serializer_class = VinculumSerializer
 
-    permission_classes = (permissions.IsAuthenticated,permissions.IsAdminUser)
+    permission_classes = (permissions.IsAuthenticated,)
 
     # handles get, put, delete
