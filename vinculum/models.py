@@ -33,7 +33,7 @@ class RemoteResources(models.Model):
     # where do we find this remote resource? Expect something like an API
 
     def __unicode__(self):
-        return '%s : %s' % (self.remote_resource_path, self.output_path)
+        return '%s : %s' % (self.remote_resource_path)
 
 
 class InputOutputPath(models.Model):
