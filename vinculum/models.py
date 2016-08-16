@@ -10,7 +10,7 @@ class Vinculum(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100, blank=True, default='')
     owner = models.ForeignKey(User, related_name='vinculum')
-    root_path = models.CharField(max_length=1024, blank=True)
+    root_path = models.CharField(max_length=1024, blank=False)
     task_id = models.PositiveIntegerField(blank=True, default=0)
 
     class Meta:
