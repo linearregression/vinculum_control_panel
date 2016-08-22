@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 import json
+import vcr
 
 from .models import Vinculum, RemoteResources, InputOutputPath
 from rest_framework.test import APITestCase
@@ -33,7 +34,7 @@ class VinculumSerializeTest(APITestCase):
     def _require_login(self):
         self.client.login(username='testuser', password='testing')
 
-    def _login_post_vinculum(self, data_to_post=None):
+    def _login_post_vinculum(self, data_to_post=None, cassette=None):
 
         self._require_login()
 
@@ -41,10 +42,9 @@ class VinculumSerializeTest(APITestCase):
             data_to_post = json.loads(self.data_string)
 
         response = self.client.post('/vinculums/', data_to_post, format='json')
-
         return response
 
-    def _helper_deleted_blank_fields(self, field_to_test, post_vinculum, default_blank=None):
+    def _helper_deleted_blank_fields(self, field_to_test, post_vinculum):
         # TODO: Move this into a library for just itself
         data_to_post_deleted = self.data_json.copy()
         data_to_post_blank = self.data_json.copy()
@@ -93,6 +93,7 @@ class VinculumSerializeTest(APITestCase):
         self.assertEqual(serialized_vinculum_data['remote_resources'][0]['io_paths'][0]['output_path'],
                          "yahoo.weather")
 
+    @vcr.use_cassette('test_artifacts/vcr_cassettes/was_vinculum_correctly_stored')
     def test_was_vinculum_correctly_stored(self):
 
         response = self._login_post_vinculum()
@@ -114,11 +115,65 @@ class VinculumSerializeTest(APITestCase):
         self.assertEqual(io_paths.output_path, "yahoo.weather")
         self.assertEqual(io_paths.remote_resource_id, remoteresources.id)
 
+    @vcr.use_cassette('test_artifacts/vcr_cassettes/vinculum_needs_root_path_missing')
     def test_vinculum_needs_root_path(self):
-        self._helper_deleted_blank_fields('root_path', self._login_post_vinculum, default_blank="")
+        # Test to see what happens when root_path is missing entirely
 
+        field_to_test = 'root_path'
+
+        data_to_post_deleted = json.loads(self.data_string)
+
+        data_to_post_deleted.pop(field_to_test)
+
+        response = self._login_post_vinculum(data_to_post_deleted)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.content,
+                         '{"%s":["This field is required."]}' % field_to_test)
+
+    @vcr.use_cassette('test_artifacts/vcr_cassettes/vinculum_needs_root_path_blank')
+    def test_vinculum_needs_root_path_not_none(self):
+        # what happens if root_path is present but none
+        field_to_test = 'root_path'
+
+        data_to_post_blank = self.data_json.copy()
+
+        data_to_post_blank[field_to_test] = None
+        response = self._login_post_vinculum(data_to_post_blank, cassette='test_artifacts/vcr_cassettes/vinculum_needs_root_path_blank')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertEqual(response.content,
+                         '{"%s":["This field may not be null."]}' % field_to_test)
+
+        self._helper_deleted_blank_fields('root_path',
+                                          self._login_post_vinculum)
+
+    @vcr.use_cassette('test_artifacts/vcr_cassettes/vinculum_needs_remote_resources_missing')
     def test_vinculum_needs_remote_resources(self):
-        self._helper_deleted_blank_fields('remote_resources', self._login_post_vinculum, default_blank=None)
-        self._helper_deleted_blank_fields('remote_resources', self._login_post_vinculum, default_blank=[])
+        # test to see what happens when remote_resources is missing
+        field_to_test = 'remote_resources'
+
+        data_to_post_deleted = self.data_json.copy()
+
+        data_to_post_deleted.pop(field_to_test)
+        response = self._login_post_vinculum(data_to_post_deleted)
+        self.assertEqual(response.content,
+                         '{"%s":["This field is required."]}' % field_to_test)
+
+    @vcr.use_cassette('test_artifacts/vcr_cassettes/vinculum_needs_remote_resources_blank')
+    def test_vinculum_needs_remote_resources_blank(self):
+        # test to see what happens when remote_resources is none
+
+        field_to_test = 'remote_resources'
+
+        data_to_post_blank = json.loads(self.data_string)
+
+        data_to_post_blank[field_to_test] = None
+        response = self._login_post_vinculum(data_to_post_blank)
+
+        self.assertEqual(response.content,
+                         '{"%s":["This field may not be null."]}' % field_to_test)
+
+
 
 
