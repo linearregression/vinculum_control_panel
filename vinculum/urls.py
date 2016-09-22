@@ -5,10 +5,11 @@ from django.conf.urls.static import static
 from rest_framework.urlpatterns import format_suffix_patterns
 
 
-from views import VinculumDetail, VinculumList
+from views import VinculumDetail, VinculumList, VinculumDetailRunning
 
 urlpatterns = [
     url(r"^$", VinculumList.as_view()),
+    url(r"^(?P<pk>[0-9]+)/running$", VinculumDetailRunning.as_view()),
     url(r"^(?P<pk>[0-9]+)$", VinculumDetail.as_view()),
 ]
 

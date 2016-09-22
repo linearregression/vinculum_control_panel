@@ -6,6 +6,8 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework import permissions
 
+from rest_framework.views import APIView
+
 import requests
 from rest_framework.exceptions import ValidationError
 
@@ -13,6 +15,7 @@ from control_panel.settings import VINCULUM_RUNNER
 from vinculum.models import Vinculum
 from vinculum.serializers import VinculumSerializer
 from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 
 
 class VinculumList(generics.ListCreateAPIView):
@@ -48,3 +51,26 @@ class VinculumDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     # handles get, put, delete
+
+class VinculumDetailRunning(APIView):
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        if pk is None:
+            return Response({})
+
+        vinculum = Vinculum.objects.get(pk=pk)
+
+        if vinculum is None:
+            return Response({})
+
+        url = VINCULUM_RUNNER + str(vinculum.task_id)
+
+        r = requests.get(url)
+        if r.status_code != 200:
+            return Response({})
+
+        is_running = r.json()['running']
+        return Response({'running': is_running, 'pk':pk})
+
+    def put(self, request, *args, **kwargs):
+        pass

@@ -108,6 +108,7 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE_CLASSES = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -140,7 +141,6 @@ INSTALLED_APPS = [
     "pinax.eventlog",
     "pinax.webanalytics",
     "rest_framework",
-
 
     # project
     "control_panel",
@@ -193,10 +193,24 @@ ACCOUNT_USE_AUTH_AUTHENTICATE = True
 
 AUTHENTICATION_BACKENDS = [
     "rest_framework.authentication.BasicAuthentication",
+    'rest_framework.authentication.SessionAuthentication',
     "account.auth_backends.UsernameAuthenticationBackend",
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ),
+}
 
 VINCULUM_RUNNER_IP = os.environ.get("VINCULUM_RUNNER_IP", None)
 VINCULUM_RUNNER_ROOT = "vinculum_runner/"
 
 VINCULUM_RUNNER = VINCULUM_RUNNER_IP + VINCULUM_RUNNER_ROOT
+
+CORS_ORIGIN_ALLOW_ALL = True
