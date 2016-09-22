@@ -52,6 +52,7 @@ class VinculumDetail(generics.RetrieveUpdateDestroyAPIView):
 
     # handles get, put, delete
 
+
 class VinculumDetailRunning(APIView):
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
@@ -73,4 +74,23 @@ class VinculumDetailRunning(APIView):
         return Response({'running': is_running, 'pk':pk})
 
     def put(self, request, *args, **kwargs):
-        pass
+        pk = kwargs.get('pk', None)
+        if pk is None:
+            return Response({})
+
+        vinculum = Vinculum.objects.get(pk=pk)
+
+        url = VINCULUM_RUNNER + str(vinculum.task_id)
+
+        running_status = request.data.get('running', None)
+        if running_status is None:
+            return Response({'error': "need to specifiy a boolean 'running' variable"})
+
+        if vinculum is None:
+            return Response({})
+
+        r = requests.patch(url, {'running' : running_status} )
+        if r.status_code != 200:
+            return Response({'error': "Running status failed"})
+
+        return Response({'status': "succeeded"})
