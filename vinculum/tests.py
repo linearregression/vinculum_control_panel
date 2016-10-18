@@ -174,6 +174,18 @@ class VinculumSerializeTest(APITestCase):
         self.assertEqual(response.content,
                          '{"%s":["This field may not be null."]}' % field_to_test)
 
+    @vcr.use_cassette('test_artifacts/vcr_cassettes/vinculum_is_running')
+    def test_vinculum_is_running(self):
 
+        response = self._login_post_vinculum()
+        vinculum_id = response.data['id']
+        vinculum = Vinculum.objects.get(pk=vinculum_id)
+        self.assertTrue(isinstance(vinculum, Vinculum))
 
+        response = self.client.get('/vinculums/' + str(vinculum_id) + '/running' , format='json')
 
+        returned_data = response.json()
+        self.assertTrue(response)
+        self.assertTrue(response.status_code==200)
+        self.assertTrue(returned_data['pk'] == '1')
+        self.assertTrue(returned_data['running'] == True)

@@ -1,5 +1,5 @@
 import os
-
+import datetime
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 PACKAGE_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -141,6 +141,7 @@ INSTALLED_APPS = [
     "pinax.eventlog",
     "pinax.webanalytics",
     "rest_framework",
+    "django_nose",
 
     # project
     "control_panel",
@@ -208,9 +209,22 @@ REST_FRAMEWORK = {
     ),
 }
 
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=604800),
+}
+
+
 VINCULUM_RUNNER_IP = os.environ.get("VINCULUM_RUNNER_IP", None)
 VINCULUM_RUNNER_ROOT = "vinculum_runner/"
 
 VINCULUM_RUNNER = VINCULUM_RUNNER_IP + VINCULUM_RUNNER_ROOT
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+# Use nose to run all tests
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+# Tell nose to measure coverage on the 'foo' and 'bar' apps
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=control_panel,vinculum',
+]

@@ -41,6 +41,13 @@ class VinculumList(generics.ListCreateAPIView):
             }
         r = requests.post(VINCULUM_RUNNER, json=data)
 
+        remote_task_id = r.json().get('id', None)
+        if remote_task_id:
+            instance.task_id = r.json()['id']
+            instance.save()
+        else:
+            raise ValidationError('Cannot create a vinculum task runner')
+
     permission_classes = (permissions.IsAuthenticated,)
 
 
@@ -54,21 +61,24 @@ class VinculumDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class VinculumDetailRunning(APIView):
+
+    # permission_classes = (permissions.IsAuthenticated,)
+
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
         if pk is None:
-            return Response({})
+            return Response({'error': 'need a vinculum pk number'})
 
         vinculum = Vinculum.objects.get(pk=pk)
 
         if vinculum is None:
-            return Response({})
+            return Response({'error': 'cannot locate vinculum with id: %s' % pk})
 
         url = VINCULUM_RUNNER + str(vinculum.task_id)
 
         r = requests.get(url)
         if r.status_code != 200:
-            return Response({})
+            return Response({'error': 'Cannot locate remote vinculum running service'})
 
         is_running = r.json()['running']
         return Response({'running': is_running, 'pk':pk})
